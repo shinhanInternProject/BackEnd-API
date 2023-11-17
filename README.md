@@ -3,7 +3,7 @@
 <br/>
 
 <h2>📃 Convention</h2>  
-<h3>🔧 Commit rule</h3> 
+<h3>🔧 Commit Rule</h3> 
  
 1. Issue 생성 
 2. Branch 생성
