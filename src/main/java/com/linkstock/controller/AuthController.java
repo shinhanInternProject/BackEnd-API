@@ -1,5 +1,6 @@
 package com.linkstock.controller;
 
+import com.linkstock.dto.request.SignUpRequestDTO;
 import com.linkstock.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,5 +31,17 @@ public class AuthController {
         String email = emailMap.get("email");
 
         return authService.checkEmail(email);
+    }
+
+    /**
+     * 회원 가입 메서드
+     * @author : 박상희
+     * @param signUpRequestDTO : 사용자가 입력한 사용자 회원 가입 정보
+     * @return - 회원 가입에 성공했을 경우 : 200
+     * @return - 회원 가입에 실패했을 경우 : 500
+     **/
+    @PostMapping("/signup")
+    public ResponseEntity<?> signUp(@RequestBody SignUpRequestDTO signUpRequestDTO) {
+        return authService.registerUser(signUpRequestDTO);
     }
 }
