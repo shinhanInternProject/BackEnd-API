@@ -2,8 +2,10 @@ package com.linkstock.service;
 
 import com.linkstock.dto.request.LogInRequestDTO;
 import com.linkstock.dto.request.SignUpRequestDTO;
+import com.linkstock.dto.response.LogInResponseDTO;
 import com.linkstock.dto.response.ResponseDTO;
 import com.linkstock.entity.User;
+import com.linkstock.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import com.linkstock.repository.UserRepository;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
+    private final TokenProvider tokenProvider;
 
     /**
      * 해당 이메일이 존재하는지 체크하는 메서드
@@ -133,11 +136,15 @@ public class AuthServiceImpl implements AuthService {
                 logInRequestDTO.getPassword());
 
         if (user != null) {
-            ResponseDTO<Object> responseDTO = ResponseDTO.builder()
-                    .message("로그인을 성공했습니다.")
+            // 토큰 생성
+            final String accessToken = tokenProvider.create(user);
+
+            LogInResponseDTO logInResponseDTO = LogInResponseDTO.builder()
+                    .userName(user.getUserName())
+                    .accessToken(accessToken)
                     .build();
 
-            return ResponseEntity.ok().body(responseDTO);
+            return ResponseEntity.ok().body(logInResponseDTO);
         }
         else {
             ResponseDTO responseDTO = ResponseDTO.builder()
