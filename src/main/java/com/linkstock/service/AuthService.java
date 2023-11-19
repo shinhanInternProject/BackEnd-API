@@ -1,5 +1,6 @@
 package com.linkstock.service;
 
+import com.linkstock.dto.request.LogInRequestDTO;
 import com.linkstock.dto.request.SignUpRequestDTO;
 import org.springframework.http.ResponseEntity;
 
@@ -21,4 +22,13 @@ public interface AuthService {
      * @return - 회원 가입에 실패했을 경우 : 500
      **/
     ResponseEntity<?> registerUser(final SignUpRequestDTO signUpRequestDTO);
+
+    /**
+     * 로그인 메서드
+     * @author : 박상희
+     * @param logInRequestDTO : 로그인할 사용자 로그인 정보
+     * @return - 로그인을 성공했을 경우 : 200
+     * @return - 로그인을 실패했을 경우 : 500
+     **/
+    ResponseEntity<?> authenticate(final LogInRequestDTO logInRequestDTO);
 }

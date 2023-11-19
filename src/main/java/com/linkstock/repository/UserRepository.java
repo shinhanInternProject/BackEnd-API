@@ -17,4 +17,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return - 이메일이 존재하지 않을 경우 : false
      **/
     Boolean existsByEmail(String email);
+
+    /**
+     * 이메일과 비밀번호로 사용자 정보를 찾는 메서드
+     * @author : 박상희
+     * @param email : 이메일
+     * @param password : 비밀번호
+     * @return - 사용자 정보가 존재할 경우 : 사용자 객체
+     * @return - 사용자 정보가 존재하지 않을 경우 : null
+     **/
+    User findByEmailAndPassword(String email, String password);
 }
