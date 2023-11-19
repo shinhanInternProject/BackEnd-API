@@ -30,6 +30,9 @@ public class Card {
     @Column(name = "card_type", nullable = false)
     private Integer cardType; // 카드 종류  // 0 : 신용카드, 1 : 체크카드
 
+    @Column(name = "card_name", nullable = false)
+    private String cardName;
+
     @PrePersist // 엔티티 객체가 영구 저장소에 저장되기 전에 실행해야 하는 메서드를 지정하는 어노테이션
     public void prePersist() {
         this.cardType = this.cardType == null ? 0 : this.cardType;
