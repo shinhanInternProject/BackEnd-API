@@ -1,5 +1,6 @@
 package com.linkstock.service;
 
+import com.linkstock.dto.request.LogInRequestDTO;
 import com.linkstock.dto.request.SignUpRequestDTO;
 import com.linkstock.dto.response.ResponseDTO;
 import com.linkstock.entity.User;
@@ -54,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
      */
     public User create(final User user) {
         if (user == null || user.getUserName() == null || user.getEmail() == null || user.getPassword() == null) { // 사용자 데이터가 유효하지 않을 경우
-            throw new RuntimeException("회원 가입에 실패했습니다.");
+            throw new RuntimeException("사용자 데이터가 유효하지 않습니다.");
         }
 
         final String email = user.getEmail();
@@ -100,6 +101,48 @@ public class AuthServiceImpl implements AuthService {
         }
         catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().message("회원 가입을 실패했습니다. " + e.getMessage()).build();
+
+            return ResponseEntity
+                    .internalServerError() // Error 500
+                    .body(responseDTO);
+        }
+    }
+
+    /**
+     * 사용자 이메일과 사용자 비밀번호를 이용해서 사용자를 검색하는 메서드
+     * @author : 박상희
+     * @param email : 사용자 이메일
+     * @param password : 사용자 비밀번호
+     * @return 검색된 사용자 객체
+     */
+    public User getByCredentials(final String email, final String password) {
+        return userRepository.findByEmailAndPassword(email, password);
+    }
+
+    /**
+     * 로그인 메서드
+     * @author : 박상희
+     * @param logInRequestDTO : 로그인할 사용자 로그인 정보
+     * @return - 로그인을 성공했을 경우 : 200
+     * @return - 로그인을 실패했을 경우 : 500
+     **/
+    @Override
+    public ResponseEntity<?> authenticate(final LogInRequestDTO logInRequestDTO) {
+        User user = getByCredentials(
+                logInRequestDTO.getEmail(),
+                logInRequestDTO.getPassword());
+
+        if (user != null) {
+            ResponseDTO<Object> responseDTO = ResponseDTO.builder()
+                    .message("로그인을 성공했습니다.")
+                    .build();
+
+            return ResponseEntity.ok().body(responseDTO);
+        }
+        else {
+            ResponseDTO responseDTO = ResponseDTO.builder()
+                    .message("로그인을 실패했습니다.")
+                    .build();
 
             return ResponseEntity
                     .internalServerError() // Error 500
