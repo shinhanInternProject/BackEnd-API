@@ -15,6 +15,7 @@ import java.io.Serializable;
 @Data
 @Entity
 @Builder
+@IdClass(CategoryCodeId.class)
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "category_code",
