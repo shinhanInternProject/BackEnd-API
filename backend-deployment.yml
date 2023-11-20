@@ -16,7 +16,7 @@ kind: Deployment
 metadata:
   name: backend-deployment
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: backend
@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: heebin00/backend:v1.0
+        image: heebin00/backend:v1.1
         ports:
         - containerPort: 8080
       nodeSelector:

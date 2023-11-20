@@ -5,7 +5,7 @@ pipeline {
         // 환경 변수 설정
         DOCKERHUB_CREDENTIALS_ID = 'dockerHub'
         DOCKERHUB_USERNAME = 'heebin00'
-        BACKEND_IMAGE_TAG = 'v1.0' // 백엔드 이미지 태그
+        BACKEND_IMAGE_TAG = 'v1.1' // 백엔드 이미지 태그
     }
 
     stages {
