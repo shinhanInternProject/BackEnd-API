@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,8 +40,20 @@ public class StockController {
     @GetMapping("/cap/{category}")
     public ResponseEntity<?> categoryCapList(@PathVariable String category) {
         try { // 정상 결과
-            List<Object[]> result = stockService.stockListCap(category); // 카테고리에 해당하는 종목 - 시가총액 순
-            return ResponseEntity.ok().body(result);
+            List<Map<String, String>> stockList = new ArrayList<>();
+
+            List<String[]> result = stockService.stockListCap(category); // 카테고리에 해당하는 종목 - 시가총액 순
+            for (String[] list : result) {
+                stockList.add(createStockMap(list[0], list[1], list[2]));
+            }
+
+            ResponseDTO<Map<String, String>> responseDTO = ResponseDTO.<Map<String, String>>builder()
+                    .message("200")
+                    .data(stockList)
+                    .build();
+
+            return ResponseEntity.ok().body(responseDTO);
+
         } catch (Exception e) { // S3 정보 없음을 제외한 오류
             ResponseDTO<Object> responseDTO = ResponseDTO.builder().message("일치하는 정보 없음.").build();
             return ResponseEntity
@@ -47,5 +61,11 @@ public class StockController {
                     .body(responseDTO);
         }
     }
-
+    private Map<String, String> createStockMap(String stockCode, String stockName, String marketCap) {
+        Map<String, String> stockMap = new HashMap<>();
+        stockMap.put("stockCode", stockCode);
+        stockMap.put("stockName", stockName);
+        stockMap.put("marketCap", marketCap);
+        return stockMap;
+    }
 }
