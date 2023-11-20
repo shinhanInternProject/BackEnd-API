@@ -1,10 +1,18 @@
 package com.linkstock.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
-
-@Table(name = "stock")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Table(name = "stock")
 public class Stock {
     @Id
     @Column(name = "stock_code", nullable = false)

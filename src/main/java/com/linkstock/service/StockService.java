@@ -23,6 +23,7 @@ public class StockService {
     public List<Object[]> stockListCap(String category) {
         // 카테고리에 해당하는 업종 코드 리스트
         List<String> cCodeList = categoryCodeRepository.cCodeList(category);
+        System.out.println(cCodeList);
         // 업종 코드 리스트에 속하는 종목 코드 리스트
         List<String> stockList = stockCategoryRepository.findByCategoryCodeList(cCodeList);
         // 종목 코드 리스트에 해당하는 종목 코드들 -> 시총 기준 상위 20개 반환

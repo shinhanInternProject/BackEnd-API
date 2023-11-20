@@ -36,7 +36,7 @@ public class StockController {
      * @return 업종에 관련된 종목 코드 리스트 시가총액 기준 20개
      */
     @GetMapping("/cap/{category}")
-    public ResponseEntity<?> categoryCapList(@PathVariable(value = "category") String category) {
+    public ResponseEntity<?> categoryCapList(@PathVariable String category) {
         try { // 정상 결과
             List<Object[]> result = stockService.stockListCap(category); // 카테고리에 해당하는 종목 - 시가총액 순
             return ResponseEntity.ok().body(result);
