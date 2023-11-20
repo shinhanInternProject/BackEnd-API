@@ -38,7 +38,7 @@ public class CardServiceImpl implements CardService {
     @Override
     public ResponseEntity<?> getCardInformation(final PrincipalUserDetails currentUserDetails) {
         try {
-            if (currentUserDetails != null) {
+            if (currentUserDetails != null) { // 현재 로그인한 사용자가 있을 경우
                 Card card = cardRepository.findByUserUserSeq(currentUserDetails.getUserSeq())
                         .orElseThrow(() -> new RuntimeException("카드 정보를 찾지 못했습니다."));
 
@@ -77,17 +77,17 @@ public class CardServiceImpl implements CardService {
      * @param cardSeq : 카드 고유 번호
      * @param month : 월
      * @return - 카드 내역 조회에 성공했을 경우 : 200 - 카드 내역이 없을 경우 null return
-     * @return - 카드 내역 조회에 성공했을 경우 : 200 - 카드 내역이 있을 경우 카드 내역 return
+     * @return - 카드 내역 조회에 성공했을 경우 : 200 - 카드 내역이 있을 경우 내림차순으로 정렬된 카드 내역 return
      * @return - 로그인하지 않았을 경우 : 403
      * @return - 카드 내역 조회에 실패했을 경우 : 500
      */
     @Override
     public ResponseEntity<?> getMonthCardHistory(final PrincipalUserDetails currentUserDetails, final Long cardSeq, final int month) {
         try {
-            if (currentUserDetails != null) {
+            if (currentUserDetails != null) { // 현재 로그인한 사용자가 있을 경우
                 List<CardHistory> cardHistoryList = cardHistoryRepository.findAllByCardCardSeqAAndMonth(cardSeq, month);
 
-                if (cardHistoryList.isEmpty()) {
+                if (cardHistoryList.isEmpty()) { // month 월 카드 내역이 없을 경우
                     ResponseDTO<Object> responseDTO = ResponseDTO.builder()
                             .message(month + " 월 카드 내역이 없습니다.")
                             .build();
@@ -95,27 +95,34 @@ public class CardServiceImpl implements CardService {
                     return ResponseEntity.ok().body(responseDTO);
                 }
 
+                // month 월 카드 내역이 있을 경우
                 int monthPrice = cardHistoryList.stream()
                         .mapToInt(CardHistory::getPaymentPrice)
                         .sum();
 
-                Map<String, Integer> categoryMap = cardHistoryList.stream()
+                Map<String, Integer> categoryMap = cardHistoryList.stream() // 카테고리별 총 소비 금액을 계산하여 Map으로 그룹화
                         .collect(Collectors.groupingBy(CardHistory::getPaymentCategory,
                                 Collectors.summingInt(CardHistory::getPaymentPrice)));
 
                 List<Map<String, String>> consumptionList = categoryMap.entrySet().stream()
-                        .map(entry -> {
+                        .map(entry -> { // 카테고리와 카테고리별 총 소비 금액을 Map으로 변환
                             Map<String, String> map = new HashMap<>();
                             map.put("category", entry.getKey());
                             map.put("categoryPrice", String.valueOf(entry.getValue()));
 
                             return map;
                         })
+                        .sorted((map1, map2) -> { // 카테고리별 총 소비 금액을 정수로 변환하여 내림차순 정렬
+                            int price1 = Integer.parseInt(map1.get("categoryPrice"));
+                            int price2 = Integer.parseInt(map2.get("categoryPrice"));
+
+                            return Integer.compare(price2, price1);
+                        })
                         .collect(Collectors.toList());
 
                 ResponseDTO<Object> responseDTO = ResponseDTO.builder()
                         .data(Map.of("monthPrice", monthPrice, "consumption", consumptionList))
-                        .message(month + "의 소비 내역을 가져왔습니다.")
+                        .message(month + " 월의 소비 내역을 가져왔습니다.")
                         .build();
 
                 return ResponseEntity.ok().body(responseDTO);
