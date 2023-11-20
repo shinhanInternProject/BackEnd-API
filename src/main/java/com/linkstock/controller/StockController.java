@@ -14,7 +14,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/stock")
+@RequestMapping("/link/stock")
 public class StockController {
     private final StockService stockService;
 
