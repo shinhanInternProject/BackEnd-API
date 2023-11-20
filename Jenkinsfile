@@ -16,6 +16,14 @@ pipeline {
             }
         }
 
+            stage('Build') {
+            steps {
+                sh './gradlew build'
+            }
+        }
+
+
+
         stage('Build & Push Backend Docker Image') {
             steps {
                 script {
