@@ -2,10 +2,12 @@ package com.linkstock.controller;
 
 import com.linkstock.dto.request.LogInRequestDTO;
 import com.linkstock.dto.request.SignUpRequestDTO;
+import com.linkstock.security.PrincipalUserDetails;
 import com.linkstock.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,5 +58,17 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> logIn(@RequestBody LogInRequestDTO logInRequestDTO) {
         return authService.authenticate(logInRequestDTO);
+    }
+
+    /**
+     * 로그아웃
+     * @author : 박상희
+     * @param currentUserDetails : 로그인한 사용자 정보
+     * @return - 200 : 로그아웃 성공
+     * @return - 500 : 로그아웃 실패
+     **/
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@AuthenticationPrincipal PrincipalUserDetails currentUserDetails) {
+        return authService.logout(currentUserDetails);
     }
 }

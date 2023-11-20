@@ -2,6 +2,7 @@ package com.linkstock.service;
 
 import com.linkstock.dto.request.LogInRequestDTO;
 import com.linkstock.dto.request.SignUpRequestDTO;
+import com.linkstock.security.PrincipalUserDetails;
 import org.springframework.http.ResponseEntity;
 
 public interface AuthService {
@@ -31,4 +32,13 @@ public interface AuthService {
      * @return - 로그인을 실패했을 경우 : 500
      **/
     ResponseEntity<?> authenticate(final LogInRequestDTO logInRequestDTO);
+
+    /**
+     * 로그아웃
+     * @author : 박상희
+     * @param currentUserDetails : 로그인한 사용자 정보
+     * @return - 200 : 로그아웃 성공
+     * @return - 500 : 로그아웃 실패
+     **/
+    ResponseEntity<?> logout(final PrincipalUserDetails currentUserDetails);
 }

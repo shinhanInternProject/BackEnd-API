@@ -5,6 +5,7 @@ import com.linkstock.dto.request.SignUpRequestDTO;
 import com.linkstock.dto.response.LogInResponseDTO;
 import com.linkstock.dto.response.ResponseDTO;
 import com.linkstock.entity.User;
+import com.linkstock.security.PrincipalUserDetails;
 import com.linkstock.security.PrincipalUserDetailsService;
 import com.linkstock.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -168,6 +169,33 @@ public class AuthServiceImpl implements AuthService {
             ResponseDTO responseDTO = ResponseDTO.builder()
                     .message("로그인을 실패했습니다.")
                     .build();
+
+            return ResponseEntity
+                    .internalServerError() // Error 500
+                    .body(responseDTO);
+        }
+    }
+
+    /**
+     * 로그아웃
+     * @author : 박상희
+     * @param currentUserDetails : 로그인한 사용자 정보
+     * @return - 200 : 로그아웃 성공
+     * @return - 500 : 로그아웃 실패
+     **/
+    @Override
+    public ResponseEntity<?> logout(PrincipalUserDetails currentUserDetails) {
+        ResponseDTO responseDTO = ResponseDTO.builder().build();
+
+        if (currentUserDetails != null) { // 현재 로그인한 사용자가 있을 경우
+            responseDTO.setMessage("로그아웃을 성공했습니다.");
+
+            return ResponseEntity
+                    .ok()
+                    .body(responseDTO);
+        }
+        else {
+            responseDTO.setMessage("로그아웃을 실패했습니다.");
 
             return ResponseEntity
                     .internalServerError() // Error 500
