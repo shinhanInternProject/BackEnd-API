@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
 
     private final TokenProvider tokenProvider;
+
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
      * 해당 이메일이 존재하는지 체크하는 메서드
@@ -94,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
             User user = User.builder()
                     .userName(signUpRequestDTO.getUserName()) // 사용자 이름
                     .email(signUpRequestDTO.getEmail()) // 사용자 이메일
-                    .password(signUpRequestDTO.getPassword()) // 사용자 비밀번호
+                    .password(passwordEncoder.encode(signUpRequestDTO.getPassword())) // 사용자 비밀번호
                     .agree(signUpRequestDTO.getAgree()) // 사용자 카드 내역 연동 동의 여부
                     .build();
 
@@ -123,8 +127,14 @@ public class AuthServiceImpl implements AuthService {
      * @param password : 사용자 비밀번호
      * @return 검색된 사용자 객체
      */
-    public User getByCredentials(final String email, final String password) {
-        return userRepository.findByEmailAndPassword(email, password);
+    public User getByCredentials(final String email, final String password, final PasswordEncoder encoder) {
+        final User originalUser = userRepository.findByEmail(email).orElse(null);
+
+        if (originalUser != null && encoder.matches(password, originalUser.getPassword())) {
+            return originalUser;
+        }
+
+        return null;
     }
 
     /**
@@ -138,7 +148,8 @@ public class AuthServiceImpl implements AuthService {
     public ResponseEntity<?> authenticate(final LogInRequestDTO logInRequestDTO) {
         User user = getByCredentials(
                 logInRequestDTO.getEmail(),
-                logInRequestDTO.getPassword());
+                logInRequestDTO.getPassword(),
+                passwordEncoder);
 
         if (user != null) {
             UserDetails principalUserDetails = principalUserDetailsService.loadUserByUsername(user.getEmail());
