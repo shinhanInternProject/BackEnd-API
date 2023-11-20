@@ -30,3 +30,5 @@ spec:
         image: heebin00/backend:v1.0
         ports:
         - containerPort: 8080
+      nodeSelector:
+        role: sapi-node
