@@ -5,10 +5,12 @@ import com.linkstock.dto.request.SignUpRequestDTO;
 import com.linkstock.dto.response.LogInResponseDTO;
 import com.linkstock.dto.response.ResponseDTO;
 import com.linkstock.entity.User;
+import com.linkstock.security.PrincipalUserDetailsService;
 import com.linkstock.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +21,10 @@ import com.linkstock.repository.UserRepository;
 @Transactional
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    private final PrincipalUserDetailsService principalUserDetailsService;
+
     private final UserRepository userRepository;
+
     private final TokenProvider tokenProvider;
 
     /**
@@ -136,8 +141,10 @@ public class AuthServiceImpl implements AuthService {
                 logInRequestDTO.getPassword());
 
         if (user != null) {
+            UserDetails principalUserDetails = principalUserDetailsService.loadUserByUsername(user.getEmail());
+
             // 토큰 생성
-            final String accessToken = tokenProvider.create(user);
+            final String accessToken = tokenProvider.create(principalUserDetails);
 
             LogInResponseDTO logInResponseDTO = LogInResponseDTO.builder()
                     .userName(user.getUserName())
