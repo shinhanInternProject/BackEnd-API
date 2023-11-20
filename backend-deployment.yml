@@ -9,7 +9,7 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-  type: ClusterIP
+  type: NodePort  # 이 부분을 NodePort로 변경
 ---
 apiVersion: apps/v1
 kind: Deployment
