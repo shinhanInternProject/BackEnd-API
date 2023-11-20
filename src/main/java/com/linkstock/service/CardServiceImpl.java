@@ -2,6 +2,8 @@ package com.linkstock.service;
 
 import com.linkstock.dto.response.ResponseDTO;
 import com.linkstock.entity.Card;
+import com.linkstock.entity.CardHistory;
+import com.linkstock.repository.CardHistoryRepository;
 import com.linkstock.repository.CardRepository;
 import com.linkstock.security.PrincipalUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -19,6 +24,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CardServiceImpl implements CardService {
     private final CardRepository cardRepository;
+
+    private final CardHistoryRepository cardHistoryRepository;
 
     /**
      * 현재 로그인한 사용자의 카드 정보 조회 메서드
@@ -29,7 +36,7 @@ public class CardServiceImpl implements CardService {
      * @return - 카드 정보 조회에 실패했을 경우 : 500
      */
     @Override
-    public ResponseEntity<?> getCardInformation(PrincipalUserDetails currentUserDetails) {
+    public ResponseEntity<?> getCardInformation(final PrincipalUserDetails currentUserDetails) {
         try {
             if (currentUserDetails != null) {
                 Card card = cardRepository.findByUserUserSeq(currentUserDetails.getUserSeq())
@@ -56,6 +63,71 @@ public class CardServiceImpl implements CardService {
         }
         catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().message("카드 정보를 가져오지 못했습니다. " + e.getMessage()).build();
+
+            return ResponseEntity
+                    .internalServerError() // Error 500
+                    .body(responseDTO);
+        }
+    }
+
+    /**
+     * 특정 카드의 해당 월의 카드 내역을 조회하는 메서드
+     * @author : 박상희
+     * @param currentUserDetails : 현재 로그인한 사용자 정보
+     * @param cardSeq : 카드 고유 번호
+     * @param month : 월
+     * @return - 카드 내역 조회에 성공했을 경우 : 200 - 카드 내역이 없을 경우 null return
+     * @return - 카드 내역 조회에 성공했을 경우 : 200 - 카드 내역이 있을 경우 카드 내역 return
+     * @return - 로그인하지 않았을 경우 : 403
+     * @return - 카드 내역 조회에 실패했을 경우 : 500
+     */
+    @Override
+    public ResponseEntity<?> getMonthCardHistory(final PrincipalUserDetails currentUserDetails, final Long cardSeq, final int month) {
+        try {
+            if (currentUserDetails != null) {
+                List<CardHistory> cardHistoryList = cardHistoryRepository.findAllByCardCardSeqAAndMonth(cardSeq, month);
+
+                if (cardHistoryList.isEmpty()) {
+                    ResponseDTO<Object> responseDTO = ResponseDTO.builder()
+                            .message(month + " 월 카드 내역이 없습니다.")
+                            .build();
+
+                    return ResponseEntity.ok().body(responseDTO);
+                }
+
+                int monthPrice = cardHistoryList.stream()
+                        .mapToInt(CardHistory::getPaymentPrice)
+                        .sum();
+
+                Map<String, Integer> categoryMap = cardHistoryList.stream()
+                        .collect(Collectors.groupingBy(CardHistory::getPaymentCategory,
+                                Collectors.summingInt(CardHistory::getPaymentPrice)));
+
+                List<Map<String, String>> consumptionList = categoryMap.entrySet().stream()
+                        .map(entry -> {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("category", entry.getKey());
+                            map.put("categoryPrice", String.valueOf(entry.getValue()));
+
+                            return map;
+                        })
+                        .collect(Collectors.toList());
+
+                ResponseDTO<Object> responseDTO = ResponseDTO.builder()
+                        .data(Map.of("monthPrice", monthPrice, "consumption", consumptionList))
+                        .message(month + "의 소비 내역을 가져왔습니다.")
+                        .build();
+
+                return ResponseEntity.ok().body(responseDTO);
+            }
+            else {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED) // 401 Error
+                        .body("카드 내역을 조회하기 전, 로그인이 필요합니다.");
+            }
+        }
+        catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().message("소비 내역을 가져오지 못했습니다. " + e.getMessage()).build();
 
             return ResponseEntity
                     .internalServerError() // Error 500
