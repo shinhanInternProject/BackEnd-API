@@ -31,4 +31,4 @@ spec:
         ports:
         - containerPort: 8080
       nodeSelector:
-        role: sapi-node
+        role: backend
