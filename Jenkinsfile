@@ -7,7 +7,7 @@ pipeline {
         DOCKERHUB_USERNAME = 'heebin00'
         BACKEND_IMAGE_TAG = 'v1.2' // 백엔드 이미지 태그
     }
-add .
+    
     stages {
         stage('Checkout Backend') {
             steps {
