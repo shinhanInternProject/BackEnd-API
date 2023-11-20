@@ -1,14 +1,12 @@
 package com.linkstock.security;
 
-import com.linkstock.entity.User;
-import com.linkstock.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -32,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private TokenProvider tokenProvider;
 
     @Autowired
-    private UserRepository userRepository;
+    private PrincipalUserDetailsService principalUserDetailsService;
 
     /**
      * HTTP 요청 필터링 및 JWT 기반 사용자 인증 처리 메서드
@@ -52,19 +50,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("Filter is running...");
 
             // 토큰 검사하기 // JWT이므로 인가 서버에 요청하지 않고도 검증 가능
-            if(token != null && !token.equalsIgnoreCase("null")) {
+            if (token != null && !token.equalsIgnoreCase("null")) {
                 // email 가져오기 // 위조된 경우 예외 처리된다.
                 String email = tokenProvider.validateAndGetEmail(token);
                 log.info("Authenticated email : " + email);
 
                 // email을 통해 user 정보 가져오기
-                User user = userRepository.findByEmail(email);
+                UserDetails userDetails = principalUserDetailsService.loadUserByUsername(email);
 
                 // 인증 완료 // SecurityContextHolder에 등록해야 인증된 사용자라고 생각한다.
                 AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        user, // 인증된 사용자의 정보
+                        userDetails, // 인증된 사용자의 정보
                         null,
-                        AuthorityUtils.NO_AUTHORITIES
+                        userDetails.getAuthorities()
                 );
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
