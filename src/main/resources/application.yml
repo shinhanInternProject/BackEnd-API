@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://[endpoint]:3306/[schema_name]
+    username: [username]
+    password: [password]
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
