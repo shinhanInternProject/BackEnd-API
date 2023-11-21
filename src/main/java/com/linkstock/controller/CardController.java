@@ -62,4 +62,25 @@ public class CardController {
                                                          @PathVariable Long cardSeq, @PathVariable int month, @PathVariable String category) {
         return cardService.getMonthCategoryCardHistory(currentUserDetails, cardSeq, month, category);
     }
+
+    /**
+     * 특정 카드의 해당 월의 '/'이 포함된 카테고리별 소비 내역을 조회하는 메서드
+     * @author : 박상희
+     * @param currentUserDetails : 현재 로그인한 사용자 정보
+     * @param cardSeq : 카드 고유 번호
+     * @param month : 월
+     * @param category1 : '/' 이전의 카테고리
+     * @param category2 : '/' 이후의 카테고리
+     * @return - 카드 내역 조회에 성공했을 경우 : 200 - 카드 내역이 없을 경우 null return
+     * @return - 카테고리별 소비 내역 조회에 성공했을 경우 : 200 - 카드 내역이 있을 경우 카테고리별 소비 내역 return
+     * @return - 현재 로그인한 사용자와 카드 소유자가 다를 경우 : 401
+     * @return - 로그인하지 않았을 경우 : 403
+     * @return - 카테고리별 소비 내역이 없을 경우 : 500
+     * @return - 카테고리별 소비 내역 조회에 실패했을 경우 : 500
+     **/
+    @GetMapping("/{cardSeq}/consumption/{month}/{category1}/{category2}")
+    public ResponseEntity<?> getMonthTwoCategoryCardHistory(@AuthenticationPrincipal PrincipalUserDetails currentUserDetails,
+                                                         @PathVariable Long cardSeq, @PathVariable int month, @PathVariable String category1, @PathVariable String category2) {
+        return cardService.getMonthCategoryCardHistory(currentUserDetails, cardSeq, month, category1 + "/" + category2);
+    }
 }
