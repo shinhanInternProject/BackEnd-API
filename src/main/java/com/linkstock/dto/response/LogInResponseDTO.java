@@ -6,15 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 공통 응답 DTO
+ * 사용자 로그인 응답 DTO
  * @author : 박상희
- * @param <T> : 데이터의 타입을 나타내는 제네릭 타입
  **/
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class ResponseDTO<T> {
-    private String message;
-    private T data;
+public class LogInResponseDTO {
+    private String userName; // 사용자 이름
+    private String accessToken; // Access Token
 }
