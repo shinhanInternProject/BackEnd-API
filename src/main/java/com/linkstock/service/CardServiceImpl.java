@@ -156,9 +156,13 @@ public class CardServiceImpl implements CardService {
                 return ResponseEntity.ok().body(responseDTO);
             }
             else {
+                ResponseDTO responseDTO = ResponseDTO.builder()
+                        .message("카드 내역을 조회하기 전, 로그인이 필요합니다.")
+                        .build();
+
                 return ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED) // 401 Error
-                        .body("카드 내역을 조회하기 전, 로그인이 필요합니다.");
+                        .body(responseDTO);
             }
         }
         catch (Exception e) {
@@ -251,9 +255,13 @@ public class CardServiceImpl implements CardService {
                 return ResponseEntity.ok().body(responseDTO);
             }
             else {
+                ResponseDTO responseDTO = ResponseDTO.builder()
+                        .message("카테고리 소비 내역을 조회하기 전, 로그인이 필요합니다.")
+                        .build();
+
                 return ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED) // 401 Error
-                        .body("카테고리 소비 내역을 조회하기 전, 로그인이 필요합니다.");
+                        .body(responseDTO);
             }
         }
         catch (Exception e) {
