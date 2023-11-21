@@ -13,10 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -227,8 +225,15 @@ public class CardServiceImpl implements CardService {
                             Map<String, String> map = new HashMap<>();
                             map.put("shop", history.getPaymentDetail()); // 가맹점명
                             map.put("price", String.valueOf(history.getPaymentPrice())); // 소비 금액
+                            map.put("paymentDate", String.valueOf(history.getPaymentDate()));
 
                             return map;
+                        })
+                        .sorted((history1, history2) -> { // 소비 날짜 기준으로 오름차순 정렬
+                            LocalDateTime date1 = LocalDateTime.parse(history1.get("paymentDate"));
+                            LocalDateTime date2 = LocalDateTime.parse(history2.get("paymentDate"));
+
+                            return date1.compareTo(date2);
                         })
                         .toList();
 
