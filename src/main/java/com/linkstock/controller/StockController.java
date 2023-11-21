@@ -1,6 +1,7 @@
 package com.linkstock.controller;
 
 import com.linkstock.dto.response.ResponseDTO;
+import com.linkstock.dto.response.StockResponseDTO;
 import com.linkstock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class StockController {
                 stockList.add(createStockMapEarn(list[0], list[1], list[2], list[3]));
             }
 
-            ResponseDTO<Map<String, String>> responseDTO = ResponseDTO.<Map<String, String>>builder()
+            StockResponseDTO<Map<String, String>> responseDTO = StockResponseDTO.<Map<String, String>>builder()
                     .message("200")
                     .data(stockList)
                     .build();
@@ -45,7 +46,7 @@ public class StockController {
             return ResponseEntity.ok().body(responseDTO);
 
         } catch (Exception e) { // S3 정보 없음을 제외한 오류
-            ResponseDTO<Object> responseDTO = ResponseDTO.builder().message("일치하는 정보 없음.").build();
+            StockResponseDTO<Object> responseDTO = StockResponseDTO.builder().message("일치하는 정보 없음.").build();
             return ResponseEntity
                     .internalServerError()
                     .body(responseDTO);
@@ -68,7 +69,7 @@ public class StockController {
                 stockList.add(createStockMap(list[0], list[1], list[2]));
             }
 
-            ResponseDTO<Map<String, String>> responseDTO = ResponseDTO.<Map<String, String>>builder()
+            StockResponseDTO<Map<String, String>> responseDTO = StockResponseDTO.<Map<String, String>>builder()
                     .message("200")
                     .data(stockList)
                     .build();
@@ -76,7 +77,7 @@ public class StockController {
             return ResponseEntity.ok().body(responseDTO);
 
         } catch (Exception e) { // S3 정보 없음을 제외한 오류
-            ResponseDTO<Object> responseDTO = ResponseDTO.builder().message("일치하는 정보 없음.").build();
+            StockResponseDTO<Object> responseDTO = StockResponseDTO.builder().message("일치하는 정보 없음.").build();
             return ResponseEntity
                     .internalServerError()
                     .body(responseDTO);
