@@ -90,6 +90,7 @@ public class CardServiceImpl implements CardService {
      * @param month : 월
      * @return - 카드 내역 조회에 성공했을 경우 : 200 - 카드 내역이 없을 경우 null return
      * @return - 카드 내역 조회에 성공했을 경우 : 200 - 카드 내역이 있을 경우 내림차순으로 정렬된 카드 내역 return
+     * @return - 현재 로그인한 사용자와 카드 소유자가 다를 경우 : 401
      * @return - 로그인하지 않았을 경우 : 403
      * @return - 카드 내역 조회에 실패했을 경우 : 500
      */
