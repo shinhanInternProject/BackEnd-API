@@ -4,7 +4,9 @@ import com.linkstock.dto.request.LogInRequestDTO;
 import com.linkstock.dto.request.SignUpRequestDTO;
 import com.linkstock.dto.response.LogInResponseDTO;
 import com.linkstock.dto.response.ResponseDTO;
+import com.linkstock.entity.Card;
 import com.linkstock.entity.User;
+import com.linkstock.repository.CardRepository;
 import com.linkstock.security.PrincipalUserDetails;
 import com.linkstock.security.PrincipalUserDetailsService;
 import com.linkstock.security.TokenProvider;
@@ -27,6 +29,8 @@ public class AuthServiceImpl implements AuthService {
     private final PrincipalUserDetailsService principalUserDetailsService;
 
     private final UserRepository userRepository;
+
+    private final CardRepository cardRepository;
 
     private final TokenProvider tokenProvider;
 
@@ -81,6 +85,15 @@ public class AuthServiceImpl implements AuthService {
             log.warn("사용자 카드 내역 연동 동의가 필요합니다.");
             throw new RuntimeException("사용자 카드 내역 연동 동의가 필요합니다.");
         }
+
+        // 회원 가입한 사용자에게 새로운 카드 생성 및 연동
+        Card card = Card.builder()
+                .user(user)
+                .cardType(0)
+                .cardName("신한카드 Deep Dream Platinum+")
+                .build();
+
+        cardRepository.save(card);
 
         return userRepository.save(user);
     }
