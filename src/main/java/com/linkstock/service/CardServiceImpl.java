@@ -28,8 +28,6 @@ public class CardServiceImpl implements CardService {
 
     private final CardHistoryRepository cardHistoryRepository;
 
-    private List<CardHistory> cardHistoryList;
-
     /**
      * 현재 로그인한 사용자의 카드 정보 조회 메서드
      * @author : 박상희
@@ -111,7 +109,7 @@ public class CardServiceImpl implements CardService {
                             .body(responseDTO);
                 }
 
-                cardHistoryList = cardHistoryRepository.findAllByCardCardSeqAAndMonth(cardSeq, month);
+                List<CardHistory> cardHistoryList = cardHistoryRepository.findAllByCardCardSeqAAndMonth(cardSeq, month);
 
                 if (cardHistoryList.isEmpty()) { // month 월 카드 내역이 없을 경우
                     ResponseDTO<Object> responseDTO = ResponseDTO.builder()
@@ -198,9 +196,7 @@ public class CardServiceImpl implements CardService {
                             .body(responseDTO);
                 }
 
-                if (cardHistoryList == null) { // month 월 카드 내역을 불러오지 않았을 경우
-                    cardHistoryList = cardHistoryRepository.findAllByCardCardSeqAAndMonth(cardSeq, month);
-                }
+                List<CardHistory> cardHistoryList = cardHistoryRepository.findAllByCardCardSeqAAndMonth(cardSeq, month);
 
                 if (cardHistoryList.isEmpty()) { // month 월 카드 내역이 없을 경우
                     ResponseDTO<Object> responseDTO = ResponseDTO.builder()
