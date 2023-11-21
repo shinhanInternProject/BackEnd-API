@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +29,27 @@ public class StockController {
      */
     @GetMapping("/earning/{category}")
     public ResponseEntity<?> categoryEarningList(@PathVariable(value = "category") String category) {
-        return null;
+        try { // 정상 결과
+            List<Map<String, String>> stockList = new ArrayList<>();
+
+            List<String[]> result = stockService.stockListEarning(category); // 카테고리에 해당하는 종목 - 시가총액 순
+            for (String[] list : result) {
+                stockList.add(createStockMapEarn(list[0], list[1], list[2], list[3]));
+            }
+
+            ResponseDTO<Map<String, String>> responseDTO = ResponseDTO.<Map<String, String>>builder()
+                    .message("200")
+                    .data(stockList)
+                    .build();
+
+            return ResponseEntity.ok().body(responseDTO);
+
+        } catch (Exception e) { // S3 정보 없음을 제외한 오류
+            ResponseDTO<Object> responseDTO = ResponseDTO.builder().message("일치하는 정보 없음.").build();
+            return ResponseEntity
+                    .internalServerError()
+                    .body(responseDTO);
+        }
     }
 
     /**
@@ -66,6 +87,15 @@ public class StockController {
         stockMap.put("stockCode", stockCode);
         stockMap.put("stockName", stockName);
         stockMap.put("marketCap", marketCap);
+        return stockMap;
+    }
+
+    private Map<String, String> createStockMapEarn(String stockCode, String stockName, String stockRange, String stockClose) {
+        Map<String, String> stockMap = new HashMap<>();
+        stockMap.put("stockCode", stockCode);
+        stockMap.put("stockName", stockName);
+        stockMap.put("stockRange", stockRange);
+        stockMap.put("stockClose", stockClose);
         return stockMap;
     }
 }

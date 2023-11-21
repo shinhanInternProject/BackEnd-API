@@ -32,4 +32,15 @@ public class StockService {
     }
 
     // 주식 종목 리스트에 해당하는 종목 - 등락률 기준
+    @Transactional
+    public List<String[]> stockListEarning(String category) {
+        // 카테고리에 해당하는 업종 코드 리스트
+        List<String> cCodeList = categoryCodeRepository.cCodeList(category);
+        // 업종 코드 리스트에 속하는 종목 코드 리스트
+        List<String> stockList = stockCategoryRepository.findByCategoryCodeList(cCodeList);
+        // 종목 코드 리스트에 해당하는 종목 코드들 -> 등락률 기준 상위 20개 반환
+        List<String[]> result = stockRepository.findOrderByEarn(stockList);
+
+        return result;
+    }
 }

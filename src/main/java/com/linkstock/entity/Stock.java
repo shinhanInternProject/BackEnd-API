@@ -27,6 +27,9 @@ public class Stock {
     @Column(name = "market_cap", nullable = false)
     private String marketCap; // 종목 시가총액
 
+    @Column(name = "y_close", nullable = false)
+    private String yClose; // 종목 전일종가
+
     @Column(name = "update_date", nullable = false)
     private String updateDate; // 업데이트 날짜
 }
