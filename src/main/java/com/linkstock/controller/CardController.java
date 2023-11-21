@@ -47,8 +47,8 @@ public class CardController {
      * @return - 카테고리별 소비 내역 조회에 실패했을 경우 : 500
      **/
     @GetMapping("/{cardSeq}/consumption/{month}/{category}")
-    public ResponseEntity<?> getMonthCategoryCardHistory(@AuthenticationPrincipal PrincipalUserDetails currentDetails,
+    public ResponseEntity<?> getMonthCategoryCardHistory(@AuthenticationPrincipal PrincipalUserDetails currentUserDetails,
                                                          @PathVariable Long cardSeq, @PathVariable int month, @PathVariable String category) {
-        return cardService.getMonthCategoryCardHistory(currentDetails, cardSeq, month, category);
+        return cardService.getMonthCategoryCardHistory(currentUserDetails, cardSeq, month, category);
     }
 }
