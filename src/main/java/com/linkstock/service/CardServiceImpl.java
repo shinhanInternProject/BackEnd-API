@@ -33,7 +33,7 @@ public class CardServiceImpl implements CardService {
      * @return - 카드 정보 조회에 성공했을 경우 : 200
      * @return - 로그인하지 않았을 경우 : 403
      * @return - 카드 정보 조회에 실패했을 경우 : 500
-     */
+     **/
     @Override
     public ResponseEntity<?> getCardInformation(final PrincipalUserDetails currentUserDetails) {
         try {
@@ -92,7 +92,7 @@ public class CardServiceImpl implements CardService {
      * @return - 현재 로그인한 사용자와 카드 소유자가 다를 경우 : 401
      * @return - 로그인하지 않았을 경우 : 403
      * @return - 카드 내역 조회에 실패했을 경우 : 500
-     */
+     **/
     @Override
     public ResponseEntity<?> getMonthCardHistory(final PrincipalUserDetails currentUserDetails, final Long cardSeq, final int month) {
         try {
