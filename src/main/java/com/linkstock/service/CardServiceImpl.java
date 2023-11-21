@@ -13,10 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,7 +33,7 @@ public class CardServiceImpl implements CardService {
      * @return - 카드 정보 조회에 성공했을 경우 : 200
      * @return - 로그인하지 않았을 경우 : 403
      * @return - 카드 정보 조회에 실패했을 경우 : 500
-     */
+     **/
     @Override
     public ResponseEntity<?> getCardInformation(final PrincipalUserDetails currentUserDetails) {
         try {
@@ -57,13 +55,19 @@ public class CardServiceImpl implements CardService {
                 return ResponseEntity.ok().body(responseDTO);
             }
             else {
+                ResponseDTO responseDTO = ResponseDTO.builder()
+                        .message("카드 정보를 불러오기 전, 로그인이 필요합니다.")
+                        .build();
+
                 return ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED) // 401 Error
-                        .body("카드 정보를 불러오기 전, 로그인이 필요합니다.");
+                        .body(responseDTO);
             }
         }
         catch (Exception e) {
-            ResponseDTO responseDTO = ResponseDTO.builder().message("카드 정보를 가져오지 못했습니다. " + e.getMessage()).build();
+            ResponseDTO responseDTO = ResponseDTO.builder()
+                    .message("카드 정보를 가져오지 못했습니다. " + e.getMessage())
+                    .build();
 
             return ResponseEntity
                     .internalServerError() // Error 500
@@ -94,7 +98,7 @@ public class CardServiceImpl implements CardService {
      * @return - 현재 로그인한 사용자와 카드 소유자가 다를 경우 : 401
      * @return - 로그인하지 않았을 경우 : 403
      * @return - 카드 내역 조회에 실패했을 경우 : 500
-     */
+     **/
     @Override
     public ResponseEntity<?> getMonthCardHistory(final PrincipalUserDetails currentUserDetails, final Long cardSeq, final int month) {
         try {
@@ -152,9 +156,13 @@ public class CardServiceImpl implements CardService {
                 return ResponseEntity.ok().body(responseDTO);
             }
             else {
+                ResponseDTO responseDTO = ResponseDTO.builder()
+                        .message("카드 내역을 조회하기 전, 로그인이 필요합니다.")
+                        .build();
+
                 return ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED) // 401 Error
-                        .body("카드 내역을 조회하기 전, 로그인이 필요합니다.");
+                        .body(responseDTO);
             }
         }
         catch (Exception e) {
@@ -227,8 +235,15 @@ public class CardServiceImpl implements CardService {
                             Map<String, String> map = new HashMap<>();
                             map.put("shop", history.getPaymentDetail()); // 가맹점명
                             map.put("price", String.valueOf(history.getPaymentPrice())); // 소비 금액
+                            map.put("paymentDate", String.valueOf(history.getPaymentDate()));
 
                             return map;
+                        })
+                        .sorted((history1, history2) -> { // 소비 날짜 기준으로 오름차순 정렬
+                            LocalDateTime date1 = LocalDateTime.parse(history1.get("paymentDate"));
+                            LocalDateTime date2 = LocalDateTime.parse(history2.get("paymentDate"));
+
+                            return date1.compareTo(date2);
                         })
                         .toList();
 
@@ -240,9 +255,13 @@ public class CardServiceImpl implements CardService {
                 return ResponseEntity.ok().body(responseDTO);
             }
             else {
+                ResponseDTO responseDTO = ResponseDTO.builder()
+                        .message("카테고리 소비 내역을 조회하기 전, 로그인이 필요합니다.")
+                        .build();
+
                 return ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED) // 401 Error
-                        .body("카테고리 소비 내역을 조회하기 전, 로그인이 필요합니다.");
+                        .body(responseDTO);
             }
         }
         catch (Exception e) {

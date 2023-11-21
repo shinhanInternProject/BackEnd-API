@@ -4,7 +4,9 @@ import com.linkstock.dto.request.LogInRequestDTO;
 import com.linkstock.dto.request.SignUpRequestDTO;
 import com.linkstock.dto.response.LogInResponseDTO;
 import com.linkstock.dto.response.ResponseDTO;
+import com.linkstock.entity.Card;
 import com.linkstock.entity.User;
+import com.linkstock.repository.CardRepository;
 import com.linkstock.security.PrincipalUserDetails;
 import com.linkstock.security.PrincipalUserDetailsService;
 import com.linkstock.security.TokenProvider;
@@ -19,6 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.linkstock.repository.UserRepository;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
 @Slf4j
 @Service
 @Transactional
@@ -27,6 +33,8 @@ public class AuthServiceImpl implements AuthService {
     private final PrincipalUserDetailsService principalUserDetailsService;
 
     private final UserRepository userRepository;
+
+    private final CardRepository cardRepository;
 
     private final TokenProvider tokenProvider;
 
@@ -60,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * 새로운 사용자를 생성하는 메서드
+     * 새로운 사용자 생성 및 회원 가입한 사용자와 카드 연동 메서드
      * @author : 박상희
      * @param user : 회원 가입할 사용자 객체
      * @return 등록할 사용자 객체
@@ -81,6 +89,28 @@ public class AuthServiceImpl implements AuthService {
             log.warn("사용자 카드 내역 연동 동의가 필요합니다.");
             throw new RuntimeException("사용자 카드 내역 연동 동의가 필요합니다.");
         }
+
+        List<Card> existedCardList = cardRepository.findAll(); // 전체 카드 리스트
+
+        // 사용자와 연동되지 않은 카드 중 카드 고유 번호의 값이 가장 작은 카드 찾기
+        Optional<Card> existedNonUserSeqCard = existedCardList.stream()
+                .filter(card -> card.getUser() == null) // userSeq가 없는 카드 필터링
+                .min(Comparator.comparing(Card::getCardSeq)); // cardSeq 기준으로 최솟값 찾기
+
+        Card createdUserCard = Card.builder().build(); // 회원 가입한 사용자와 연동할 카드
+
+        if (existedNonUserSeqCard.isPresent()) { // 사용자와 연동되지 않은 카드가 있을 경우
+            // 회원 가입한 사용자와 기존의 카드 연동
+            createdUserCard = existedNonUserSeqCard.get();
+        }
+        else { // 사용자와 연동되지 않은 카드가 없을 경우
+            // 새로운 카드 생성 및 회원 가입한 사용자와 연동
+            createdUserCard.setCardType(0);
+            createdUserCard.setCardName("신한카드 Deep Dream Platinum+");
+        }
+
+        createdUserCard.setUser(user);
+        cardRepository.save(createdUserCard);
 
         return userRepository.save(user);
     }
