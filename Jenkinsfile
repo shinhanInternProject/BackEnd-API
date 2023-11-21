@@ -5,7 +5,6 @@ pipeline {
         // 환경 변수 설정
         DOCKERHUB_CREDENTIALS_ID = 'dockerHub'
         DOCKERHUB_USERNAME = 'heebin00'
-
     }
 
     stages {
@@ -14,7 +13,6 @@ pipeline {
                 // GitHub 저장소에서 백엔드 소스 코드 체크아웃
                 git branch: 'deployTest02', url: 'https://github.com/shinhanInternProject/BackEnd-API.git'
             }
-        }
         }
 
         stage('Deploy Backend to Kubernetes') {
@@ -31,7 +29,7 @@ pipeline {
                 }
             }
         }
-    
+    }
 
     post {
         always {
@@ -44,5 +42,4 @@ pipeline {
             echo '이 작업은 빌드가 실패하면 실행됩니다.'
         }
     }
-
 }
