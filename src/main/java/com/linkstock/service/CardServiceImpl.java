@@ -55,13 +55,19 @@ public class CardServiceImpl implements CardService {
                 return ResponseEntity.ok().body(responseDTO);
             }
             else {
+                ResponseDTO responseDTO = ResponseDTO.builder()
+                        .message("카드 정보를 불러오기 전, 로그인이 필요합니다.")
+                        .build();
+
                 return ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED) // 401 Error
-                        .body("카드 정보를 불러오기 전, 로그인이 필요합니다.");
+                        .body(responseDTO);
             }
         }
         catch (Exception e) {
-            ResponseDTO responseDTO = ResponseDTO.builder().message("카드 정보를 가져오지 못했습니다. " + e.getMessage()).build();
+            ResponseDTO responseDTO = ResponseDTO.builder()
+                    .message("카드 정보를 가져오지 못했습니다. " + e.getMessage())
+                    .build();
 
             return ResponseEntity
                     .internalServerError() // Error 500
