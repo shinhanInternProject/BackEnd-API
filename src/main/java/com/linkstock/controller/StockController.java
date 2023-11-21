@@ -54,6 +54,39 @@ public class StockController {
     }
 
     /**
+     * 업종 종목리스트 등락률 기준 - 카테고리에 /들어가는 경우 처리
+     * @param category
+     * @param category2
+     * @return
+     */
+    @GetMapping("/earning/{category}/{category2}")
+    public ResponseEntity<?> categoryEarningList2(@PathVariable String category, @PathVariable String category2) {
+        try { // 정상 결과
+            List<Map<String, String>> stockList = new ArrayList<>();
+            category += "/" + category2;
+
+            List<String[]> result = stockService.stockListEarning(category); // 카테고리에 해당하는 종목 - 시가총액 순
+            for (String[] list : result) {
+                stockList.add(createStockMapEarn(list[0], list[1], list[2], list[3]));
+            }
+
+            StockResponseDTO<Map<String, String>> responseDTO = StockResponseDTO.<Map<String, String>>builder()
+                    .message("200")
+                    .data(stockList)
+                    .build();
+
+            return ResponseEntity.ok().body(responseDTO);
+
+        } catch (Exception e) { // S3 정보 없음을 제외한 오류
+            StockResponseDTO<Object> responseDTO = StockResponseDTO.builder().message("일치하는 정보 없음.").build();
+            return ResponseEntity
+                    .internalServerError()
+                    .body(responseDTO);
+        }
+    }
+
+
+    /**
      * 업종 종목 리스트(시가총액) 메서드
      * @author 김태우
      * @param category : 조회하고자 하는 업종 코드
@@ -83,6 +116,39 @@ public class StockController {
                     .body(responseDTO);
         }
     }
+
+    /**
+     * 업종 종목리스트 시가총액 기준 - 카테고리에 /들어가는 경우 처리
+     * @param category
+     * @param category2
+     * @return
+     */
+    @GetMapping("/cap/{category}/{category2}")
+    public ResponseEntity<?> categoryCapList2(@PathVariable String category, @PathVariable String category2) {
+        try { // 정상 결과
+            List<Map<String, String>> stockList = new ArrayList<>();
+            category += "/" + category2;
+
+            List<String[]> result = stockService.stockListCap(category); // 카테고리에 해당하는 종목 - 시가총액 순
+            for (String[] list : result) {
+                stockList.add(createStockMap(list[0], list[1], list[2]));
+            }
+
+            StockResponseDTO<Map<String, String>> responseDTO = StockResponseDTO.<Map<String, String>>builder()
+                    .message("200")
+                    .data(stockList)
+                    .build();
+
+            return ResponseEntity.ok().body(responseDTO);
+
+        } catch (Exception e) { // S3 정보 없음을 제외한 오류
+            StockResponseDTO<Object> responseDTO = StockResponseDTO.builder().message("일치하는 정보 없음.").build();
+            return ResponseEntity
+                    .internalServerError()
+                    .body(responseDTO);
+        }
+    }
+
     private Map<String, String> createStockMap(String stockCode, String stockName, String marketCap) {
         Map<String, String> stockMap = new HashMap<>();
         stockMap.put("stockCode", stockCode);
