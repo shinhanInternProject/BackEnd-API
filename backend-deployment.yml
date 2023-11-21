@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: heebin00/myapp:v1.6
+          image: heebin00/myapp:v1.7
           ports:
             - containerPort: 8080
       nodeSelector:
