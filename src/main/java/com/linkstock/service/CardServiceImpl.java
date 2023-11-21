@@ -217,7 +217,7 @@ public class CardServiceImpl implements CardService {
 
                 if (categoryCardHistoryList.isEmpty()) { // 카테고리 소비 내역이 없을 경우
                     ResponseDTO<Object> responseDTO = ResponseDTO.builder()
-                            .message(month + " 월의 " + category + " 소비 내역을 가져오지 못했습니다.")
+                            .message(month + " 월의 " + category + " 소비 내역이 없습니다.")
                             .build();
 
                     return ResponseEntity
