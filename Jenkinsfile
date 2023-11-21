@@ -31,15 +31,17 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            echo '이 작업은 실행 결과에 상관없이 항상 실행됩니다.'
-        }
-        success {
-            echo '이 작업은 빌드가 성공하면 실행됩니다.'
-        }
-        failure {
-            echo '이 작업은 빌드가 실패하면 실행됩니다.'
-        }
-    }
+       post {
+           always {
+               echo '이 작업은 실행 결과에 상관없이 항상 실행됩니다.'
+           }
+           success {
+               echo '이 작업은 빌드가 성공하면 실행됩니다.'
+               slackSend(channel: '#deploy-noti', message: "빌드 성공: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+           }
+           failure {
+               echo '이 작업은 빌드가 실패하면 실행됩니다.'
+               slackSend(channel: '#deploy-noti', message: "빌드 실패: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+           }
+       }
 }
