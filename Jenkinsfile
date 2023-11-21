@@ -31,7 +31,7 @@ pipeline {
                 }
             }
         }
-    }
+    
 
     post {
         always {
@@ -44,4 +44,5 @@ pipeline {
             echo '이 작업은 빌드가 실패하면 실행됩니다.'
         }
     }
+
 }
