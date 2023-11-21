@@ -12,6 +12,16 @@ import java.util.Optional;
  */
 public interface CardRepository extends JpaRepository<Card, Long> {
     /**
+     * 사용자 고유 번호와 카드 고유 번호를 기준으로 찾은 카드가 데이터베이스에 존재하는지 확인하는 메서드
+     * @author : 박상희
+     * @param userSeq : 사용자 고유 번호
+     * @param cardSeq : 카드 고유 번호
+     * @return - 카드가 존재할 경우 : true
+     * @return - 카드가 존재하지 않을 경우 : false
+     **/
+    Boolean existsByUserUserSeqAndCardSeq(Long userSeq, Long cardSeq);
+
+    /**
      * 사용자 고유 번호를 기준으로 카드 정보를 찾는 메서드
      * @author : 박상희
      * @param userSeq : 사용자 고유 번호

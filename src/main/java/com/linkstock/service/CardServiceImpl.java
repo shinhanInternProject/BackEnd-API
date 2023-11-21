@@ -71,6 +71,18 @@ public class CardServiceImpl implements CardService {
     }
 
     /**
+     * 사용자 고유 번호와 카드 고유 번호를 기준으로 찾은 카드가 해당 사용자의 카드인지 확인하는 메서드
+     * @author : 박상희
+     * @param userSeq : 사용자 고유 번호
+     * @param cardSeq : 카드 고유 번호
+     * @return - 해당 사용자가 카드 소유자일 경우 : true
+     * @return - 해당 사용자가 카드 소유자가 아닐 경우 : false
+     **/
+    public boolean checkCardUser(Long userSeq, Long cardSeq) {
+        return cardRepository.existsByUserUserSeqAndCardSeq(userSeq, cardSeq);
+    }
+
+    /**
      * 특정 카드의 해당 월의 카드 내역을 조회하는 메서드
      * @author : 박상희
      * @param currentUserDetails : 현재 로그인한 사용자 정보
@@ -85,6 +97,16 @@ public class CardServiceImpl implements CardService {
     public ResponseEntity<?> getMonthCardHistory(final PrincipalUserDetails currentUserDetails, final Long cardSeq, final int month) {
         try {
             if (currentUserDetails != null) { // 현재 로그인한 사용자가 있을 경우
+                if (!checkCardUser(currentUserDetails.getUserSeq(), cardSeq)) { // 현재 로그인한 사용자와 카드 소유자가 다를 경우
+                    ResponseDTO responseDTO = ResponseDTO.builder()
+                            .message("접근 권한이 없습니다.")
+                            .build();
+
+                    return ResponseEntity
+                            .status(HttpStatus.UNAUTHORIZED) // 401 Error
+                            .body(responseDTO);
+                }
+
                 List<CardHistory> cardHistoryList = cardHistoryRepository.findAllByCardCardSeqAAndMonth(cardSeq, month);
 
                 if (cardHistoryList.isEmpty()) { // month 월 카드 내역이 없을 경우
@@ -134,7 +156,9 @@ public class CardServiceImpl implements CardService {
             }
         }
         catch (Exception e) {
-            ResponseDTO responseDTO = ResponseDTO.builder().message("소비 내역을 가져오지 못했습니다. " + e.getMessage()).build();
+            ResponseDTO responseDTO = ResponseDTO.builder()
+                    .message("소비 내역을 가져오지 못했습니다. " + e.getMessage())
+                    .build();
 
             return ResponseEntity
                     .internalServerError() // Error 500
