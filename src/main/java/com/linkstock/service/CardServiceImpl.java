@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,6 +160,94 @@ public class CardServiceImpl implements CardService {
         catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder()
                     .message("소비 내역을 가져오지 못했습니다. " + e.getMessage())
+                    .build();
+
+            return ResponseEntity
+                    .internalServerError() // Error 500
+                    .body(responseDTO);
+        }
+    }
+
+    /**
+     * 특정 카드의 해당 월의 카테고리별 소비 내역을 조회하는 메서드
+     * @author : 박상희
+     * @param currentUserDetails : 현재 로그인한 사용자 정보
+     * @param cardSeq : 카드 고유 번호
+     * @param month : 월
+     * @param category : 카테고리
+     * @return - 카드 내역 조회에 성공했을 경우 : 200 - 카드 내역이 없을 경우 null return
+     * @return - 카테고리별 소비 내역 조회에 성공했을 경우 : 200 - 카드 내역이 있을 경우 카테고리별 소비 내역 return
+     * @return - 현재 로그인한 사용자와 카드 소유자가 다를 경우 : 401
+     * @return - 로그인하지 않았을 경우 : 403
+     * @return - 카테고리별 소비 내역이 없을 경우 : 500
+     * @return - 카테고리별 소비 내역 조회에 실패했을 경우 : 500
+     **/
+    @Override
+    public ResponseEntity<?> getMonthCategoryCardHistory(PrincipalUserDetails currentUserDetails, Long cardSeq, int month, String category) {
+        try {
+            if (currentUserDetails != null) { // 현재 로그인한 사용자가 있을 경우
+                if (!checkCardUser(currentUserDetails.getUserSeq(), cardSeq)) { // 현재 로그인한 사용자와 카드 소유자가 다를 경우
+                    ResponseDTO responseDTO = ResponseDTO.builder()
+                            .message("접근 권한이 없습니다.")
+                            .build();
+
+                    return ResponseEntity
+                            .status(HttpStatus.UNAUTHORIZED) // 401 Error
+                            .body(responseDTO);
+                }
+
+                List<CardHistory> cardHistoryList = cardHistoryRepository.findAllByCardCardSeqAAndMonth(cardSeq, month);
+
+                if (cardHistoryList.isEmpty()) { // month 월 카드 내역이 없을 경우
+                    ResponseDTO<Object> responseDTO = ResponseDTO.builder()
+                            .message(month + " 월 카드 내역이 없습니다.")
+                            .build();
+
+                    return ResponseEntity.ok().body(responseDTO);
+                }
+
+                Map<String, List<CardHistory>> groupedByCategory = cardHistoryList.stream() // month 월 카드 내역을 카테고리별로 그룹화
+                        .collect(Collectors.groupingBy(CardHistory::getPaymentCategory));
+
+                List<CardHistory> categoryCardHistoryList = groupedByCategory.getOrDefault(category, Collections.emptyList()); // 카테고리가 category인 카드 내역 리스트
+
+                if (categoryCardHistoryList.isEmpty()) { // 카테고리 소비 내역이 없을 경우
+                    ResponseDTO<Object> responseDTO = ResponseDTO.builder()
+                            .message(month + " 월의 " + category + " 소비 내역이 없습니다.")
+                            .build();
+
+                    return ResponseEntity
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(responseDTO);
+                }
+
+                // 카테고리 소비 내역이 있을 경우
+                List<Map<String, String>> categoryConsumption = categoryCardHistoryList.stream()
+                        .map(history -> {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("shop", history.getPaymentDetail()); // 가맹점명
+                            map.put("price", String.valueOf(history.getPaymentPrice())); // 소비 금액
+
+                            return map;
+                        })
+                        .toList();
+
+                ResponseDTO<Object> responseDTO = ResponseDTO.builder()
+                        .data(Map.of("categoryConsumption", categoryConsumption))
+                        .message(month + " 월의 " + category + " 소비 내역을 가져왔습니다.")
+                        .build();
+
+                return ResponseEntity.ok().body(responseDTO);
+            }
+            else {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED) // 401 Error
+                        .body("카테고리 소비 내역을 조회하기 전, 로그인이 필요합니다.");
+            }
+        }
+        catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder()
+                    .message("카테고리 소비 내역을 가져오지 못했습니다. " + e.getMessage())
                     .build();
 
             return ResponseEntity
